@@ -6,10 +6,11 @@ const baseInstance = axios.create({
   baseURL: "https://hn.algolia.com/api/v1/",
 });
 
-export const getPopularPosts = (): Promise<Response<Hit>> => {
+export const getPopularPosts = (page?: number): Promise<Response<Hit>> => {
   return baseInstance.get("/search", {
     params: {
       tags: "front_page",
+      page,
     },
   });
 };
