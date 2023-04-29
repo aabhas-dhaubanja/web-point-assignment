@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { getPopularPosts } from "@/api-services";
-import Grid from "@/icons/Grid";
-import List from "@/icons/List";
-import { Hit } from "@/types/Hit";
-import { Response } from "@/types/Response";
 import Card from "@/components/Card";
 import SearchBar from "@/components/SearchBar";
 import Pagination from "@/components/Pagination";
@@ -14,9 +10,12 @@ const Home = () => {
   const [page, setPage] = useState(0);
 
   const { data: popularPosts, isLoading } = useQuery({
-    queryKey: ["popularPostsQuery", page],
-    queryFn: () => getPopularPosts(page),
+    queryKey: ["popularPostsQuery", page, searchQuery],
+    queryFn: () => getPopularPosts(page, searchQuery),
     select: (data) => data?.data,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   const pageCount = popularPosts?.nbPages || 1;
@@ -27,20 +26,23 @@ const Home = () => {
     }
   };
 
+  const handleSearchQuery = (newQuery: string) => {
+    if (page !== 0) setPage(0);
+    setSearchQuery(newQuery);
+  };
+
   return (
     <div className="container mx-auto py-16 px-8">
       <h1 className="text-4xl md:text-6xl">Hacker News</h1>
-      <div className="flex justify-between items-center">
-        <div className="flex my-8 gap-4 items-center">
-          <SearchBar />
-          <Grid height="24px" />
-          <List height="27px" />
+      <div className="flex flex-col md:flex-row gap-4 my-8 md:justify-between md:items-center">
+        <SearchBar handleSearchQuery={handleSearchQuery} />
+        <div className="flex">
+          <Pagination
+            currentPage={page}
+            pageCount={pageCount}
+            handlePageChange={handlePageChange}
+          />
         </div>
-        <Pagination
-          currentPage={page}
-          pageCount={pageCount}
-          handlePageChange={handlePageChange}
-        />
       </div>
       <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {isLoading
