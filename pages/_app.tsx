@@ -13,7 +13,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <main className={`${quicksand.className} bg-slate-50`}>
+      <main className={`${quicksand.className} bg-slate-50 min-h-[100vh]`}>
         <Component {...pageProps} />
       </main>
     </QueryClientProvider>
