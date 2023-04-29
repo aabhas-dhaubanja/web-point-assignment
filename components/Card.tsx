@@ -31,7 +31,7 @@ const Card = ({
       className="bg-white rounded drop-shadow-md p-8 flex flex-col justify-between"
       {...rest}
     >
-      <h3 className="mb-4 text-xl">{title}</h3>&nbsp;
+      <h3 className="mb-4 text-xl select-none">{title}</h3>&nbsp;
       <div className="flex flex-col gap-4">
         {url && (
           <Link
