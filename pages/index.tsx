@@ -1,17 +1,21 @@
 import { useState } from "react";
 import { useQuery } from "react-query";
-import { getPopularPosts } from "@/api-services";
+import { getPosts } from "@/api-services";
 import Card from "@/components/Card";
 import SearchBar from "@/components/SearchBar";
 import Pagination from "@/components/Pagination";
+import { Sort } from "@/types/Sort";
+import Toggle from "@/components/Toggle";
+import { isEmpty } from "lodash-es";
 
 const Home = () => {
+  const [sort, setSort] = useState<Sort>("popular");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(0);
 
   const { data: popularPosts, isLoading } = useQuery({
-    queryKey: ["popularPostsQuery", page, searchQuery],
-    queryFn: () => getPopularPosts(page, searchQuery),
+    queryKey: ["popularPostsQuery", page, searchQuery, sort],
+    queryFn: () => getPosts(page, searchQuery, sort),
     select: (data) => data?.data,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
@@ -31,12 +35,18 @@ const Home = () => {
     setSearchQuery(newQuery);
   };
 
+  const handleSort = () => {
+    if (page !== 0) setPage(0);
+    setSort((prev) => (prev === "popular" ? "latest" : "popular"));
+  };
+
   return (
     <div className="container mx-auto py-16 px-8">
       <h1 className="text-4xl md:text-6xl">Hacker News</h1>
       <div className="flex flex-col md:flex-row gap-4 my-8 md:justify-between md:items-center">
         <SearchBar handleSearchQuery={handleSearchQuery} />
-        <div className="flex">
+        <div className="flex gap-4">
+          <Toggle toggleSort={handleSort} currentSort={sort} />
           <Pagination
             currentPage={page}
             pageCount={pageCount}
@@ -76,6 +86,20 @@ const Home = () => {
               )
             )}
       </div>
+      {isEmpty(popularPosts?.hits) && !isLoading && (
+        <div className="text-center py-32 text-3xl">
+          <h1>No results found ¯\_(ツ)_/¯</h1>
+        </div>
+      )}
+      {!isEmpty(popularPosts?.hits) && (
+        <div className="flex justify-end mt-8">
+          <Pagination
+            currentPage={page}
+            pageCount={pageCount}
+            handlePageChange={handlePageChange}
+          />
+        </div>
+      )}
     </div>
   );
 };

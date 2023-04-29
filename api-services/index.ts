@@ -1,14 +1,16 @@
 import { Hit } from "@/types/Hit";
 import { Response } from "@/types/Response";
+import { Sort } from "@/types/Sort";
 import axios from "axios";
 
 const baseInstance = axios.create({
   baseURL: "https://hn.algolia.com/api/v1/",
 });
 
-export const getPopularPosts = (
+export const getPosts = (
   page?: number,
-  query?: string
+  query?: string,
+  sort?: Sort
 ): Promise<Response<Hit>> => {
   const params: any = {
     tags: "front_page",
@@ -21,7 +23,7 @@ export const getPopularPosts = (
     params.page = page;
   }
 
-  return baseInstance.get("/search", {
+  return baseInstance.get(sort === "popular" ? "/search" : "/search_by_date", {
     params,
   });
 };
