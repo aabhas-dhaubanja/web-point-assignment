@@ -1,8 +1,51 @@
-import Image from "next/image";
-import { Inter } from "next/font/google";
+import { useQuery } from "react-query";
+import { getPopularPosts } from "@/api-services";
+import Grid from "@/icons/Grid";
+import List from "@/icons/List";
+import Search from "@/icons/Search";
+import { Hit } from "@/types/Hit";
+import { Response } from "@/types/Response";
+import Card from "@/components/Card";
 
-const inter = Inter({ subsets: ["latin"] });
+const Home = () => {
+  const { data: popularPosts } = useQuery({
+    queryKey: ["popularPostsQuery"],
+    queryFn: () => getPopularPosts(),
+    select: (data: Response<Hit>) => data?.data.hits,
+  });
 
-export default function Home() {
-  return <main>home</main>;
-}
+  return (
+    <div className="container mx-auto py-16">
+      <h1 className="text-6xl">Hacker News</h1>
+      <div className="flex my-8 gap-8 align-middle">
+        <div className="bg-slate-200 p-4 rounded-full">
+          <Search height="16px" />
+        </div>
+        <div className="flex gap-4 items-center">
+          <Grid height="24px" />
+          <List height="27px" />
+        </div>
+      </div>
+      <div className="grid gap-8 grid-cols-4 mt-8">
+        {popularPosts?.map(
+          (
+            { title, author, created_at, num_comments, points, url, story_url },
+            index
+          ) => (
+            <Card
+              key={index}
+              title={title}
+              author={author}
+              date={created_at}
+              likes={points}
+              comments={num_comments}
+              url={url || story_url}
+            />
+          )
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Home;
